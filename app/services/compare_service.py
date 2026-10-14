@@ -45,7 +45,7 @@ def compare_premiums(current_premium: float | None, new_premium: float | None) -
 def compare_deductibles(current_value: int | None, new_value: int | None, label: str) -> dict:
     if current_value is None or new_value is None:
         return {
-            "status": "insufficient_info",
+            "status": "insufficient_data",
             "difference": None,
             "summary": f"I could not find {label} deductible in one or both documents yet."
         }
@@ -66,7 +66,7 @@ def compare_deductibles(current_value: int | None, new_value: int | None, label:
 def compare_policy_period(current_period: int | None, new_period: int | None) -> dict:
     if current_period is None or new_period is None:
         return {
-            "status": "insufficient_info",
+            "status": "insufficient_data",
             "difference": None,
             "summary": "I could not find policy period in one or both documents yet."
         }
