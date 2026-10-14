@@ -11,6 +11,8 @@ from app.services.compare_service import compare_premiums, compare_terms
 from app.services.parser_service import extract_deductible
 from app.services.compare_service import compare_deductibles
 from app.services.parser_service import extract_with_keywords
+from app.services.parser_service import build_coverage_item
+from app.services.parser_service import extract_policy_period
 
 
 
@@ -69,6 +71,10 @@ def extract_documents(payload: ExtractRequest):
 
     dec_text = normalize_text(extract_text_from_pdf(dec_path))
     quote_text = normalize_text(extract_text_from_pdf(quote_path))
+    dec_policy_period = extract_policy_period(dec_text)
+    quote_policy_period = extract_policy_period(quote_text)
+    dec_collision_item = build_coverage_item(dec_text, "Collision", "collision")
+    quote_collision_item = build_coverage_item(quote_text, "Collision", "collision")
     dec_total_premium = extract_total_premium(dec_text)
     quote_total_premium = extract_total_premium(quote_text)
     dec_term_months = extract_policy_term_months(dec_text)
@@ -109,5 +115,9 @@ def extract_documents(payload: ExtractRequest):
         "quote_comprehensive_deductible": quote_comprehensive_deductible,
         "collision_deductible_comparison": collision_deductible_comparison,
         "comprehensive_deductible_comparison": comprehensive_deductible_comparison,
+        "dec_collision_item": dec_collision_item.model_dump(),
+        "quote_collision_item": quote_collision_item.model_dump(),
+        "dec_policy_period": dec_policy_period,
+        "quote_policy_period": quote_policy_period,
         "overall_summary": overall_summary,
     }

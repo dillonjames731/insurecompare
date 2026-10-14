@@ -1,4 +1,5 @@
 import re
+from app.models.policy_models import CoverageItem
 
 
 def extract_total_premium(text: str) -> float | None:
@@ -39,9 +40,19 @@ def extract_policy_term_months(text: str) -> int | None:
 
     return int(match.group(1))
 
+def extract_policy_period(text: str) -> str | None:
+    match = re.search(r"policy\s*period\s*:\s*(\w+)", text, re.IGNORECASE)
+    if not match:
+        return None
+    return match.group(1).strip()[:80]
+
 def extract_with_keywords(text: str, keywords: list[str]) -> int | None:
     for keyword in keywords:
         value = extract_deductible(text, keyword)
         if value is not None:
             return value
     return None
+
+def build_coverage_item(text: str, display_name: str, keyword: str) -> CoverageItem:
+    deductible = extract_deductible(text, keyword)
+    return CoverageItem(name=display_name, deductible=deductible)
