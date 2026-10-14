@@ -62,3 +62,20 @@ def compare_deductibles(current_value: int | None, new_value: int | None, label:
                 "difference": difference,
                 "summary": summary,
         }
+
+def compare_policy_period(current_period: int | None, new_period: int | None) -> dict:
+    if current_period is None or new_period is None:
+        return {
+            "status": "insufficient_info",
+            "difference": None,
+            "summary": "I could not find policy period in one or both documents yet."
+        }
+    if current_period.strip().lower() == new_period.strip.lower():
+        return {
+            "status": "same",
+            "summary": "Both quotes have the same policy period."
+        }
+    return {
+        "status": "different",
+        "summary": "The policy period is different between the two documents"
+    }

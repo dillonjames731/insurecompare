@@ -13,6 +13,8 @@ from app.services.compare_service import compare_deductibles
 from app.services.parser_service import extract_with_keywords
 from app.services.parser_service import build_coverage_item
 from app.services.parser_service import extract_policy_period
+from app.services.compare_service import compare_policy_period
+
 
 
 
@@ -85,6 +87,7 @@ def extract_documents(payload: ExtractRequest):
     quote_collision_deductible = extract_with_keywords(quote_text, ["collision"])
     dec_comprehensive_deductible = extract_with_keywords(dec_text, ["comprehensive", "all other perils", "coverage c"])
     quote_comprehensive_deductible = extract_with_keywords(quote_text, ["comprehensive"])
+    policy_period_comparison = compare_policy_period(dec_policy_period, quote_policy_period)
     collision_deductible_comparison = compare_deductibles(
         dec_collision_deductible,
         quote_collision_deductible,
@@ -119,5 +122,6 @@ def extract_documents(payload: ExtractRequest):
         "quote_collision_item": quote_collision_item.model_dump(),
         "dec_policy_period": dec_policy_period,
         "quote_policy_period": quote_policy_period,
+        "policy_period_comparison": policy_period_comparison,
         "overall_summary": overall_summary,
     }
