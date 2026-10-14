@@ -14,7 +14,7 @@ from app.services.parser_service import extract_with_keywords
 from app.services.parser_service import build_coverage_item
 from app.services.parser_service import extract_policy_period
 from app.services.compare_service import compare_policy_period
-
+from app.services.parser_service import extract_term_months_from_policy_period
 
 
 
@@ -75,6 +75,13 @@ def extract_documents(payload: ExtractRequest):
     quote_text = normalize_text(extract_text_from_pdf(quote_path))
     dec_policy_period = extract_policy_period(dec_text)
     quote_policy_period = extract_policy_period(quote_text)
+    dec_term_months = extract_policy_term_months(dec_text)
+    quote_term_months = extract_policy_term_months(quote_text)
+    if dec_term_months is None:
+        dec_term_months = extract_term_months_from_policy_period(dec_policy_period)
+    if quote_term_months is None:
+        quote_term_months = extract_term_months_from_policy_period(quote_policy_period)
+    term_comparison = compare_terms(dec_term_months, quote_term_months)
     dec_collision_item = build_coverage_item(dec_text, "Collision", "collision")
     quote_collision_item = build_coverage_item(quote_text, "Collision", "collision")
     dec_total_premium = extract_total_premium(dec_text)
