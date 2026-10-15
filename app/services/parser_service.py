@@ -21,8 +21,20 @@ def extract_term_months_from_policy_period(policy_period: str | None) -> int | N
     if not match:
         return None
 
-    start = datetime.strptime(match.group(1), "%m/%d/%Y")
-    end = datetime.strptime(match.group(2), "%m/%d/%Y")
+    start_raw = match.group(1)
+    end_raw = match.group(2)
+
+    def _parse_date(value: str) -> datetime | None:
+        for fmt in ["%m/%d/%Y", "%m/%d/%y"]:
+            try:
+                return datetime.strptime(value, fmt)
+            except ValueError:
+                continue
+        return None
+    start = _parse_date(start_raw)
+    end = _parse_date(end_raw)
+    if not start or not end:
+        return None
 
     months = (end.year - start.year) * 12 + (end.month - start.month)
     if months <= 0:
@@ -82,3 +94,25 @@ def build_coverage_item(text: str, display_name: str, keyword: str) -> CoverageI
     deductible = extract_deductible(text, keyword)
     return CoverageItem(name=display_name, deductible=deductible)
 
+def extract_term_from_text_patterns(text: str) -> str | None:
+    month_range_pattern = r"(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\.?\s*\d*\s*to\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\.?\s*\d*"
+    match = re.search(month_range_pattern, text, re.IGNORECASE)
+    if not match:
+        return None
+
+    start_month = match.group(1).lower()
+    end_month = match.group(2).lower()
+
+    month_index = {
+        "jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
+        "jul": 7, "aug": 8, "sep": 9, "sept": 9, "oct": 10, "nov": 11, "dec": 12,
+    }
+
+    start = month_index[start_month]
+    end = month_index[end_month]
+    diff = (end - start) % 12
+
+    if diff == 0:
+        return None
+
+    return diff
