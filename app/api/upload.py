@@ -93,9 +93,9 @@ def extract_documents(payload: ExtractRequest):
     dec_total_premium = extract_total_premium(dec_text)
     quote_total_premium = extract_total_premium(quote_text)
     premium_comparison = compare_premiums(dec_total_premium, quote_total_premium)
-    dec_collision_deductible = extract_with_keywords(dec_text, ["collision", "coverage d", "section i"])
+    dec_collision_deductible = extract_with_keywords(dec_text, ["collision"])
     quote_collision_deductible = extract_with_keywords(quote_text, ["collision"])
-    dec_comprehensive_deductible = extract_with_keywords(dec_text, ["comprehensive", "all other perils", "coverage c"])
+    dec_comprehensive_deductible = extract_with_keywords(dec_text, ["comprehensive"])
     quote_comprehensive_deductible = extract_with_keywords(quote_text, ["comprehensive"])
     policy_period_comparison = compare_policy_period(dec_policy_period, quote_policy_period)
     collision_deductible_comparison = compare_deductibles(
