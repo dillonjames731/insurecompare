@@ -74,7 +74,7 @@ def extract_policy_term_months(text: str) -> int | None:
 
 def extract_policy_period(text: str) -> str | None:
     match = re.search(
-        r"policy\s*period\s*:\s*([0-9]{1,2}/[0-9]{1,2}/[0-9]{2,4}\s*(?:to|-|through)\s*[0-9]{1,2}/[0-9]{1,2}/[0-9]{2,4})",
+        r"(?:proposed\s+)?policy\s*period\s*:?\s*([0-9]{1,2}/[0-9]{1,2}/[0-9]{2,4}\s*(?:to|-|through)\s*[0-9]{1,2}/[0-9]{1,2}/[0-9]{2,4})",
         text,
         re.IGNORECASE,
     )
@@ -94,7 +94,7 @@ def build_coverage_item(text: str, display_name: str, keyword: str) -> CoverageI
     deductible = extract_deductible(text, keyword)
     return CoverageItem(name=display_name, deductible=deductible)
 
-def extract_term_from_text_patterns(text: str) -> str | None:
+def extract_term_from_text_patterns(text: str) -> int | None:
     month_range_pattern = r"(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\.?\s*\d*\s*to\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\.?\s*\d*"
     match = re.search(month_range_pattern, text, re.IGNORECASE)
     if not match:

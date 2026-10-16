@@ -84,10 +84,6 @@ def extract_documents(payload: ExtractRequest):
     if quote_term_months is None:
         quote_term_months = extract_term_months_from_policy_period(quote_policy_period)
     if dec_term_months is None:
-        dec_term_months = extract_policy_term_months(dec_text)
-    if quote_term_months is None:
-        quote_term_months = extract_term_months_from_policy_period(quote_policy_period)
-    if dec_term_months is None:
         dec_term_months = extract_term_from_text_patterns(dec_text)
     if quote_term_months is None:
         quote_term_months = extract_term_from_text_patterns(quote_text)
