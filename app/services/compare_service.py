@@ -56,12 +56,12 @@ def compare_deductibles(current_value: int | None, new_value: int | None, label:
     elif difference < 0:
         summary = f"The quote you are comparing has a {label} deductible of ${abs(difference):,.0f} less."
     else:
-        summary = f"Both quotes have the same {label} deductible of ${difference:,.0f}."
-        return {
-                "status": "ok",
-                "difference": difference,
-                "summary": summary,
-        }
+        summary = f"Both quotes have the same {label} deductible of ${current_value:,.0f}."
+    return {
+            "status": "ok",
+            "difference": difference,
+            "summary": summary,
+    }
 
 def compare_policy_period(current_period: int | None, new_period: int | None) -> dict:
     if current_period is None or new_period is None:
