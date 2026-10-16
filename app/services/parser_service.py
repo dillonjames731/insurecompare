@@ -41,11 +41,6 @@ def extract_term_months_from_policy_period(policy_period: str | None) -> int | N
         return None
 
     return months
-
-def extract_policy_term_months(text: str) -> int | None:
-    match = re.search(r"term\s*:\s*(\d+)\s*month(?:\(s\)|s)?", text, re.IGNORECASE)
-    if not match:
-        return None
 def extract_deductible(text: str, coverage_name: str) -> int | None:
     pattern = rf"{coverage_name}[^\n]{{0,120}}deductible[^\n]{{0,80}}\$([\d,]+)"
     match = re.search(pattern, text, re.IGNORECASE)
@@ -67,10 +62,10 @@ def extract_policy_term_months(text: str) -> int | None:
     match = re.search(r"term\s*:\s*(\d+)\s*month(?:\(s\)|s)?", text, re.IGNORECASE)
     if not match:
         return None
-
+    else:
         return int(match.group(1))
 
-    return int(match.group(1))
+
 
 def extract_policy_period(text: str) -> str | None:
     match = re.search(
