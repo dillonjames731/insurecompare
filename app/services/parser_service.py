@@ -2,6 +2,20 @@ import re
 from app.models.policy_models import CoverageItem
 from datetime import datetime
 
+MONEY_PATTERN = r"\$[\d,]+(?:\.\d{2})?"
+
+
+def to_number(amount: str) -> float:
+    return float(amount.replace("$", "").replace(",", ""))
+
+
+def find_line(text: str, keyword: str) -> str | None:
+    lines = text.splitlines()
+    for line in lines:
+        if keyword.lower() in line.lower():
+            return line
+    return None
+
 
 def extract_total_premium(text: str) -> float | None:
     match = re.search(r"total\s+premium\s*:\s*\$?([\d,]+(?:\.\d{2})?)", text, re.IGNORECASE)
@@ -12,12 +26,12 @@ def extract_total_premium(text: str) -> float | None:
     return float(amount_str)
 
 
-
 def extract_term_months_from_policy_period(policy_period: str | None) -> int | None:
     if not policy_period:
         return None
 
-    match = re.search(r"(\d{1,2}/\d{1,2}/\d{2,4})\s*(?:to|-|through)\s*(\d{1,2}/\d{1,2}/\d{2,4})", policy_period, re.IGNORECASE)
+    match = re.search(r"(\d{1,2}/\d{1,2}/\d{2,4})\s*(?:to|-|through)\s*(\d{1,2}/\d{1,2}/\d{2,4})", policy_period,
+                      re.IGNORECASE)
     if not match:
         return None
 
@@ -31,6 +45,7 @@ def extract_term_months_from_policy_period(policy_period: str | None) -> int | N
             except ValueError:
                 continue
         return None
+
     start = _parse_date(start_raw)
     end = _parse_date(end_raw)
     if not start or not end:
@@ -41,22 +56,17 @@ def extract_term_months_from_policy_period(policy_period: str | None) -> int | N
         return None
 
     return months
-def extract_deductible(text: str, coverage_name: str) -> int | None:
-    pattern = rf"{coverage_name}[^\n]{{0,120}}deductible[^\n]{{0,80}}\$([\d,]+)"
-    match = re.search(pattern, text, re.IGNORECASE)
-    if not match:
+
+
+def get_deductible(text, keyword):
+    line = find_line(text, keyword)
+    if line is None:
         return None
-
-    amount_str = match.group(1).replace(",", "")
-    value = int(amount_str)
-
-    if value <= 0:
+    amounts = re.findall(MONEY_PATTERN, line)
+    if len(amounts) < 2:
         return None
+    return to_number(amounts[0])
 
-    if value > 20000:
-        return None
-
-    return value
 
 def extract_policy_term_months(text: str) -> int | None:
     match = re.search(r"term\s*:\s*(\d+)\s*month(?:\(s\)|s)?", text, re.IGNORECASE)
@@ -64,7 +74,6 @@ def extract_policy_term_months(text: str) -> int | None:
         return None
     else:
         return int(match.group(1))
-
 
 
 def extract_policy_period(text: str) -> str | None:
@@ -78,6 +87,7 @@ def extract_policy_period(text: str) -> str | None:
 
     return match.group(1).strip()
 
+
 def extract_with_keywords(text: str, keywords: list[str]) -> int | None:
     for keyword in keywords:
         value = extract_deductible(text, keyword)
@@ -85,9 +95,11 @@ def extract_with_keywords(text: str, keywords: list[str]) -> int | None:
             return value
     return None
 
+
 def build_coverage_item(text: str, display_name: str, keyword: str) -> CoverageItem:
     deductible = extract_deductible(text, keyword)
     return CoverageItem(name=display_name, deductible=deductible)
+
 
 def extract_term_from_text_patterns(text: str) -> int | None:
     month_range_pattern = r"(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\.?\s*\d*\s*to\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\.?\s*\d*"
