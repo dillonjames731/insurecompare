@@ -88,7 +88,7 @@ def extract_policy_period(text: str) -> str | None:
     return match.group(1).strip()
 
 
-def extract_with_keywords(text: str, keywords: list[str]) -> int | None:
+def extract_with_keywords(text: str, keywords: list[str]) -> float | None:
     for keyword in keywords:
         value = extract_deductible(text, keyword)
         if value is not None:
