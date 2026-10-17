@@ -58,7 +58,7 @@ def extract_term_months_from_policy_period(policy_period: str | None) -> int | N
     return months
 
 
-def get_deductible(text, keyword):
+def extract_deductible(text: str, keyword: str) -> float | None:
     line = find_line(text, keyword)
     if line is None:
         return None
