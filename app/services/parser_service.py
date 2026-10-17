@@ -3,6 +3,7 @@ from app.models.policy_models import CoverageItem
 from datetime import datetime
 
 MONEY_PATTERN = r"\$[\d,]+(?:\.\d{2})?"
+PREMIUM_PATTERNS = [r"^total\s+premium:\s*\$", r"^total\s+\$"]
 
 
 def to_number(amount: str) -> float:
@@ -18,12 +19,13 @@ def find_line(text: str, keyword: str) -> str | None:
 
 
 def extract_total_premium(text: str) -> float | None:
-    match = re.search(r"total\s+premium\s*:\s*\$?([\d,]+(?:\.\d{2})?)", text, re.IGNORECASE)
-    if not match:
-        return None
-
-    amount_str = match.group(1).replace(",", "")
-    return float(amount_str)
+    lines = text.splitlines()
+    for pattern in PREMIUM_PATTERNS:
+        for line in lines:
+            if re.search(pattern, line.strip(), re.IGNORECASE):
+                amounts = re.findall(MONEY_PATTERN, line)
+                return to_number(amounts[0])
+    return None
 
 
 def extract_term_months_from_policy_period(policy_period: str | None) -> int | None:
