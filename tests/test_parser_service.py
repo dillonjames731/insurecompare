@@ -1,4 +1,4 @@
-from app.services.parser_service import to_number, find_line, extract_deductible, extract_total_premium
+from app.services.parser_service import to_number, find_line, extract_deductible, extract_total_premium, parse_document
 
 ALLSTATE_STYLE = """COVERAGE LIMITS DEDUCTIBLE PREMIUM
 Automobile Liability Insurance Not Applicable $310.00
@@ -52,3 +52,21 @@ def test_premium_quote_style():
 
 def test_premium_none_when_missing():
     assert extract_total_premium("nothing here") is None
+
+
+def test_term_plan_a_explicit_term():
+    assert parse_document("Policy Term: 6 Months").term_months == 6
+
+
+def test_term_plan_b_from_policy_dates():
+    assert parse_document("Policy Period: 01/01/2025 to 01/01/2026").term_months == 12
+
+def test_parse_document_fills_all_fields():
+    summary = parse_document(ALLSTATE_STYLE)
+    assert summary.total_premium == 1240.5
+    assert summary.collision_deductible == 500.00
+    assert summary.comprehensive_deductible == 250.00
+
+
+def test_term_plan_c_from_month_names():
+    assert parse_document("Policy Period Jan. 1 to July 1").term_months == 6

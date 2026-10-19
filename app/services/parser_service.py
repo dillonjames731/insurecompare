@@ -1,5 +1,5 @@
 import re
-from app.models.policy_models import CoverageItem
+from app.models.policy_models import CoverageItem, PolicySummary
 from datetime import datetime
 
 MONEY_PATTERN = r"\$[\d,]+(?:\.\d{2})?"
@@ -125,3 +125,20 @@ def extract_term_from_text_patterns(text: str) -> int | None:
         return None
 
     return diff
+
+
+def parse_document(text: str) -> PolicySummary:
+    policy_period = extract_policy_period(text)
+    term_months = extract_policy_term_months(text)
+    if term_months is None:
+        term_months = extract_term_months_from_policy_period(policy_period)
+    if term_months is None:
+        term_months = extract_term_from_text_patterns(text)
+
+    return PolicySummary(
+        total_premium=extract_total_premium(text),
+        term_months=term_months,
+        policy_period=policy_period,
+        collision_deductible=extract_with_keywords(text, ["collision"]),
+        comprehensive_deductible=extract_with_keywords(text, ["comprehensive"]),
+    )
