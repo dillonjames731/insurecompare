@@ -4,3 +4,4 @@ fastapi
 pydantic
 python-multipart
 pytest
+fpdf2
