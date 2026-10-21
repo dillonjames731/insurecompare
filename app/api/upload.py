@@ -3,28 +3,19 @@ import uuid
 
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from pydantic import BaseModel
-from app.services.extraction_service import extract_text_from_pdf
+
 from app.services.cleanup_service import normalize_text
-from app.services.parser_service import extract_total_premium
-from app.services.parser_service import extract_policy_term_months
-from app.services.compare_service import compare_premiums, compare_terms
-from app.services.parser_service import extract_deductible
 from app.services.compare_service import compare_deductibles
-from app.services.parser_service import extract_with_keywords
-from app.services.parser_service import build_coverage_item
-from app.services.parser_service import extract_policy_period
 from app.services.compare_service import compare_policy_period
-from app.services.parser_service import extract_term_months_from_policy_period
-from app.services.parser_service import extract_policy_term_months
-from app.services.parser_service import extract_term_from_text_patterns
-
-
-
+from app.services.compare_service import compare_premiums, compare_terms
+from app.services.extraction_service import extract_text_from_pdf
+from app.services.parser_service import parse_document
 
 router = APIRouter(prefix="/compare", tags=["compare"])
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 
 def _validate_pdf(upload: UploadFile) -> None:
     if not upload.filename:
@@ -32,6 +23,8 @@ def _validate_pdf(upload: UploadFile) -> None:
 
     if not upload.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail=f"{upload.filename} is not a PDF")
+
+
 @router.post("/upload")
 async def upload_documents(
         dec_page: UploadFile = File(...),
@@ -62,8 +55,11 @@ async def upload_documents(
         },
         "message": "File uploaded successfully",
     }
+
+
 class ExtractRequest(BaseModel):
     comparison_id: str
+
 
 @router.post("/extract")
 def extract_documents(payload: ExtractRequest):
@@ -75,63 +71,31 @@ def extract_documents(payload: ExtractRequest):
 
     dec_text = normalize_text(extract_text_from_pdf(dec_path))
     quote_text = normalize_text(extract_text_from_pdf(quote_path))
-    dec_policy_period = extract_policy_period(dec_text)
-    quote_policy_period = extract_policy_period(quote_text)
-    dec_term_months = extract_policy_term_months(dec_text)
-    quote_term_months = extract_policy_term_months(quote_text)
-    if dec_term_months is None:
-        dec_term_months = extract_term_months_from_policy_period(dec_policy_period)
-    if quote_term_months is None:
-        quote_term_months = extract_term_months_from_policy_period(quote_policy_period)
-    if dec_term_months is None:
-        dec_term_months = extract_term_from_text_patterns(dec_text)
-    if quote_term_months is None:
-        quote_term_months = extract_term_from_text_patterns(quote_text)
-    term_comparison = compare_terms(dec_term_months, quote_term_months)
-    dec_collision_item = build_coverage_item(dec_text, "Collision", "collision")
-    quote_collision_item = build_coverage_item(quote_text, "Collision", "collision")
-    dec_total_premium = extract_total_premium(dec_text)
-    quote_total_premium = extract_total_premium(quote_text)
-    premium_comparison = compare_premiums(dec_total_premium, quote_total_premium)
-    dec_collision_deductible = extract_with_keywords(dec_text, ["collision"])
-    quote_collision_deductible = extract_with_keywords(quote_text, ["collision"])
-    dec_comprehensive_deductible = extract_with_keywords(dec_text, ["comprehensive"])
-    quote_comprehensive_deductible = extract_with_keywords(quote_text, ["comprehensive"])
-    policy_period_comparison = compare_policy_period(dec_policy_period, quote_policy_period)
-    collision_deductible_comparison = compare_deductibles(
-        dec_collision_deductible,
-        quote_collision_deductible,
-        "collision",
-    )
-    comprehensive_deductible_comparison = compare_deductibles(
-        dec_comprehensive_deductible,
-        quote_comprehensive_deductible,
-        "comprehensive",
-    )
+    current = parse_document(dec_text)
+    quote = parse_document(quote_text)
+
+    premium_comparison = compare_premiums(current.total_premium, quote.total_premium)
+    term_comparison = compare_terms(current.term_months, quote.term_months)
+    policy_period_comparison = compare_policy_period(current.policy_period, quote.policy_period)
+    collision_deductible_comparison = compare_deductibles(current.collision_deductible, quote.collision_deductible,
+                                                          "collision")
+    comprehensive_deductible_comparison = compare_deductibles(current.comprehensive_deductible,
+                                                              quote.comprehensive_deductible, "comprehensive")
     overall_summary = f"{premium_comparison['summary']} {term_comparison['summary']}"
 
     return {
         "comparison_id": payload.comparison_id,
-        "dec_page_chars": len(dec_text),
-        "quote_chars": len(quote_text),
-        "dec_preview": dec_text[:400],
-        "quote_preview": quote_text[:400],
-        "dec_total_premium": dec_total_premium,
-        "quote_total_premium": quote_total_premium,
-        "dec_term_months": dec_term_months,
-        "quote_term_months": quote_term_months,
-        "premium_comparison": premium_comparison,
-        "term_comparison": term_comparison,
-        "dec_collision_deductible": dec_collision_deductible,
-        "quote_collision_deductible": quote_collision_deductible,
-        "dec_comprehensive_deductible": dec_comprehensive_deductible,
-        "quote_comprehensive_deductible": quote_comprehensive_deductible,
-        "collision_deductible_comparison": collision_deductible_comparison,
-        "comprehensive_deductible_comparison": comprehensive_deductible_comparison,
-        "dec_collision_item": dec_collision_item.model_dump(),
-        "quote_collision_item": quote_collision_item.model_dump(),
-        "dec_policy_period": dec_policy_period,
-        "quote_policy_period": quote_policy_period,
-        "policy_period_comparison": policy_period_comparison,
+        "current": current.model_dump(),
+        "quote": quote.model_dump(),
+        "comparisons": {
+            "premium": premium_comparison,
+            "term": term_comparison,
+            "policy_period": policy_period_comparison,
+            "deductibles": {
+                "collision": collision_deductible_comparison,
+                "comprehensive": comprehensive_deductible_comparison
+            }
+        },
+
         "overall_summary": overall_summary,
     }
