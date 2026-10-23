@@ -126,6 +126,11 @@ def extract_term_from_text_patterns(text: str) -> int | None:
 
     return diff
 
+def has_coverage(text: str, keyword: str) -> bool:
+    return find_line(text, keyword) is not None
+
+
+
 
 def parse_document(text: str) -> PolicySummary:
     policy_period = extract_policy_period(text)
@@ -141,4 +146,6 @@ def parse_document(text: str) -> PolicySummary:
         policy_period=policy_period,
         collision_deductible=extract_with_keywords(text, ["collision"]),
         comprehensive_deductible=extract_with_keywords(text, ["comprehensive"]),
+        has_rental=has_coverage(text, "rental"),
+        has_towing=has_coverage(text, "towing"),
     )
