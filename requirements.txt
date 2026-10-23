@@ -5,3 +5,5 @@ pydantic
 python-multipart
 pytest
 fpdf2
+anthropic
+python-dotenv
