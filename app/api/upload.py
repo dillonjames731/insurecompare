@@ -8,8 +8,8 @@ from app.services.cleanup_service import normalize_text
 from app.services.compare_service import compare_deductibles
 from app.services.compare_service import compare_policy_period
 from app.services.compare_service import compare_premiums, compare_terms
+from app.services.document_service import analyze_document
 from app.services.extraction_service import extract_text_from_pdf
-from app.services.parser_service import parse_document
 
 router = APIRouter(prefix="/compare", tags=["compare"])
 
@@ -71,8 +71,8 @@ def extract_documents(payload: ExtractRequest):
 
     dec_text = normalize_text(extract_text_from_pdf(dec_path))
     quote_text = normalize_text(extract_text_from_pdf(quote_path))
-    current = parse_document(dec_text)
-    quote = parse_document(quote_text)
+    current, current_services = analyze_document(dec_text)
+    quote, quote_services = analyze_document(quote_text)
 
     premium_comparison = compare_premiums(current.total_premium, quote.total_premium)
     term_comparison = compare_terms(current.term_months, quote.term_months)
@@ -87,6 +87,10 @@ def extract_documents(payload: ExtractRequest):
         "comparison_id": payload.comparison_id,
         "current": current.model_dump(),
         "quote": quote.model_dump(),
+        "sources": {
+            "current": current_services,
+            "quote": quote_services,
+        },
         "comparisons": {
             "premium": premium_comparison,
             "term": term_comparison,
