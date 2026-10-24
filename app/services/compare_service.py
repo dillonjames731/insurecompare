@@ -1,3 +1,36 @@
+def monthly_cost(premium: float | None, term_months: int | None) -> float | None:
+    if premium is None or term_months is None or term_months == 0:
+        return None
+    return round(premium / term_months, 2)
+
+def compare_monthly_cost(current_cost: float | None, new_cost: float | None) -> dict:
+    if current_cost is None or new_cost is None:
+        return {
+            "status": "insufficient_data",
+            "difference": None,
+            "summary": "I could not find monthly cost in one or both documents yet."
+        }
+    difference = round(new_cost - current_cost, 2)
+    if difference < 0:
+        summary = f"The new quote is ${abs(difference):,.2f} cheaper per month."
+    elif difference > 0:
+        summary = f"The new quote is ${abs(difference):,.2f} more expensive per month."
+    else:
+        summary = "Both quotes have the same monthly cost."
+
+    return {
+        "status": "ok",
+        "current_cost": current_cost,
+        "new_cost": new_cost,
+        "difference": difference,
+        "summary": summary,
+
+    }
+
+
+
+
+
 def compare_terms(current_term: int | None, new_term: int | None) -> dict:
     if current_term is None or new_term is None:
         return {
@@ -79,3 +112,4 @@ def compare_policy_period(current_period: str | None, new_period: str | None) ->
         "status": "different",
         "summary": "The policy period is different between the two documents"
     }
+
