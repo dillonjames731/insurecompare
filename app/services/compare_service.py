@@ -1,7 +1,66 @@
+import re
+from app.services.parser_service import MONEY_PATTERN, to_number
+
 def monthly_cost(premium: float | None, term_months: int | None) -> float | None:
     if premium is None or term_months is None or term_months == 0:
         return None
     return round(premium / term_months, 2)
+
+def limit_to_numbers(text: str | None) -> list[float] | None:
+    if text is None:
+        return None
+    limits = re.findall(MONEY_PATTERN, text)
+    numbers = []
+    for limit in limits:
+        numbers.append(to_number(limit))
+    return numbers
+
+def compare_limits(current_limit: str | None, new_limit: str | None, name: str) -> dict:
+    current_numbers = limit_to_numbers(current_limit)
+    new_numbers = limit_to_numbers(new_limit)
+
+    if not current_numbers or not new_numbers:
+        return {
+            "status": "insufficient_data",
+            "summary": f"I could not find the {name} limit in one or both documents yet.",
+        }
+
+    if new_numbers > current_numbers:
+        summary = f"The new quote has higher {name} limits ({new_limit} vs {current_limit})."
+    elif new_numbers < current_numbers:
+        summary = f"The new quote has lower {name} limits ({new_limit} vs {current_limit})."
+    else:
+        summary = f"The new quote has the same {name} limits ({new_limit})."
+
+    return {
+        "status": "ok",
+        "current_limit": current_limit,
+        "new_limit": new_limit,
+        "summary": summary,
+    }
+
+def compare_add_on(current_has: bool | None, new_has: bool | None, name: str) -> dict:
+    if current_has is None or new_has is None:
+        return {
+            "status": "insufficient_data",
+            "summary": f"I could not tell if both documents include {name}.",
+        }
+
+    if not current_has and new_has:
+        summary = f"The new quote adds {name}."
+    elif current_has and not new_has:
+        summary = f"The new quote drops {name}."
+    elif current_has and new_has:
+        summary = f"Both quotes include {name}."
+    else:
+        summary = f"Neither quote includes {name}."
+
+    return {
+        "status": "ok",
+        "current": current_has,
+        "new": new_has,
+        "summary": summary,
+    }
 
 def compare_monthly_cost(current_cost: float | None, new_cost: float | None) -> dict:
     if current_cost is None or new_cost is None:

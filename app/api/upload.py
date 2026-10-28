@@ -11,6 +11,7 @@ from app.services.compare_service import compare_premiums, compare_terms
 from app.services.document_service import analyze_document
 from app.services.extraction_service import extract_text_from_pdf
 from app.services.compare_service import compare_monthly_cost, monthly_cost
+from app.services.compare_service import compare_limits, compare_add_on
 
 router = APIRouter(prefix="/compare", tags=["compare"])
 
@@ -85,6 +86,13 @@ def extract_documents(payload: ExtractRequest):
     comprehensive_deductible_comparison = compare_deductibles(current.comprehensive_deductible,
                                                               quote.comprehensive_deductible, "comprehensive")
     monthly_comparison = compare_monthly_cost(current_cost, quote_cost)
+    bodily_injury_comparison = compare_limits(current.bodily_injury_limit, quote.bodily_injury_limit, "bodily injury")
+    property_damage_comparison = compare_limits(current.property_damage_limit, quote.property_damage_limit, "property damage")
+    uninsured_motorist_comparison = compare_limits(current.uninsured_motorist_limit, quote.uninsured_motorist_limit, "uninsured motorist")
+    pip_comparison = compare_limits(current.pip_limit, quote.pip_limit, "PIP")
+    medical_payments_comparison = compare_limits(current.medical_payments_limit, quote.medical_payments_limit, "medical payments")
+    rental_comparison = compare_add_on(current.has_rental, quote.has_rental, "rental")
+    towing_comparison = compare_add_on(current.has_towing, quote.has_towing, "towing")
     overall_summary = f"{monthly_comparison['summary']} {term_comparison['summary']}"
 
     return {
@@ -103,8 +111,20 @@ def extract_documents(payload: ExtractRequest):
             "deductibles": {
                 "collision": collision_deductible_comparison,
                 "comprehensive": comprehensive_deductible_comparison
-            }
+            },
+            "limits": {
+                "bodily_injury": bodily_injury_comparison,
+                "property_damage": property_damage_comparison,
+                "uninsured_motorist": uninsured_motorist_comparison,
+                "pip": pip_comparison,
+                "medical_payments": medical_payments_comparison,
+            },
+            "add_ons": {
+                "rental": rental_comparison,
+                "towing": towing_comparison,
+        },
         },
 
         "overall_summary": overall_summary,
     }
+
