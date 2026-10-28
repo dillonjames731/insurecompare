@@ -70,9 +70,13 @@ def extract_documents(payload: ExtractRequest):
 
     if not os.path.exists(dec_path) or not os.path.exists(quote_path):
         raise HTTPException(status_code=400, detail="files not found for this comparison_id")
+    try:
+        dec_text = normalize_text(extract_text_from_pdf(dec_path))
+        quote_text = normalize_text(extract_text_from_pdf(quote_path))
+    finally:
+        os.remove(dec_path)
+        os.remove(quote_path)
 
-    dec_text = normalize_text(extract_text_from_pdf(dec_path))
-    quote_text = normalize_text(extract_text_from_pdf(quote_path))
     current, current_services = analyze_document(dec_text)
     quote, quote_services = analyze_document(quote_text)
     current_cost = monthly_cost(current.total_premium, current.term_months)
