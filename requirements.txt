@@ -7,3 +7,4 @@ pytest
 fpdf2
 anthropic
 python-dotenv
+httpx
