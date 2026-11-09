@@ -1,5 +1,6 @@
 import UploadBox from "./components/UploadBox.jsx"
 import {useState} from "react"
+import ComparisonRow from "./components/ComparisonRow.jsx"
 
 
 function App() {
@@ -73,15 +74,32 @@ function App() {
 
 
                 {report && (
-                    <p className="mt-8 text-2xl font-semibold text-slate-900">
 
-                        {report.overall_summary}
-                    </p>
-                )}
+  <>
+    <p className="mt-8 text-2xl font-semibold text-slate-900">
+      {report.overall_summary}
+    </p>
+
+    <div className="mt-8 rounded-2xl bg-white p-6 text-left shadow-sm">
+      <h2 className="text-sm font-medium uppercase tracking-widest text-slate-500">Coverage limits</h2>
+      <ComparisonRow title="Bodily injury" comparison={report.comparisons.limits.bodily_injury} />
+      <ComparisonRow title="Property damage" comparison={report.comparisons.limits.property_damage} />
+      <ComparisonRow title="Uninsured motorist" comparison={report.comparisons.limits.uninsured_motorist} />
+      <ComparisonRow title="Personal injury protection" comparison={report.comparisons.limits.pip} />
+      <ComparisonRow title="Medical payments" comparison={report.comparisons.limits.medical_payments} />
+    </div>
+
+    <div className="mt-4 rounded-2xl bg-white p-6 text-left shadow-sm">
+      <h2 className="text-sm font-medium uppercase tracking-widest text-slate-500">Deductibles</h2>
+      <ComparisonRow title="Comprehensive" comparison={report.comparisons.deductibles.comprehensive} />
+      <ComparisonRow title="Collision" comparison={report.comparisons.deductibles.collision} />
+    </div>
+  </>
+)}
             </div>
-        </main>
-    )
+            </main>
+    )}
 
-}
 
-export default App
+
+                export default App
