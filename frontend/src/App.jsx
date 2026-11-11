@@ -1,6 +1,7 @@
 import UploadBox from "./components/UploadBox.jsx"
 import {useState} from "react"
 import ComparisonRow from "./components/ComparisonRow.jsx"
+import MonthlyCostCard from "./components/MonthlyCostCard.jsx"
 
 
 function App() {
@@ -79,6 +80,7 @@ function App() {
     <p className="mt-8 text-2xl font-semibold text-slate-900">
       {report.overall_summary}
     </p>
+      <MonthlyCostCard comparison={report.comparisons.monthly_cost}/>
 
     <div className="mt-8 rounded-2xl bg-white p-6 text-left shadow-sm">
       <h2 className="text-sm font-medium uppercase tracking-widest text-slate-500">Coverage limits</h2>
