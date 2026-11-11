@@ -38,6 +38,7 @@ if (comparison.status !== "ok") {
         {comparison.summary}
       </p>
     </div>
+
   )
 }
 

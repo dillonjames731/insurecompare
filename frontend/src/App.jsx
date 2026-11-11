@@ -47,6 +47,13 @@ function App() {
 
 
     }
+    function handleReset(){
+        setDecFile(null)
+        setQuoteFile(null)
+        setReport(null)
+        setError(null)
+        window.scrollTo({ top: 0, behavior: "smooth" })
+    }
 
     return (
         <main className="min-h-screen bg-slate-50 flex items-center justify-center px-5">
@@ -108,9 +115,16 @@ function App() {
                             <ComparisonRow title="Rental" comparison={report.comparisons.add_ons.rental}/>
                             <ComparisonRow title="Towing" comparison={report.comparisons.add_ons.towing}/>
                         </div>
+                         <div className="mt-10 flex items-center justify-center gap-2">
+                <button type="button" onClick={handleReset} className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                    Start Over
+                </button>
+                         </div>
+
                     </>
                 )}
             </div>
+
         </main>
     )
 }

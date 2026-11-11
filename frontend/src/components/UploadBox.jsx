@@ -4,7 +4,10 @@ function UploadBox({label, hint, file, onFileChange}) {
             <span className="text-base font-medium text-slate-900">{label}</span>
             <span className="mt-1 text-sm text-slate-500"> {file ? file.name : hint}</span>
                 <input type="file" accept=".pdf"
-                className="hidden" onChange={(event) => onFileChange(event.target.files[0])
+                className="hidden" onChange={(event) => {
+  onFileChange(event.target.files[0])
+  event.target.value = ""
+}
                 } />
         </label>
         )
