@@ -56,12 +56,12 @@ function App() {
     }
 
     return (
-        <main className="min-h-screen bg-slate-50 flex items-center justify-center px-5">
+        <main className="min-h-screen bg-slate-50 flex items-center justify-center px-5 py-12">
             <div className="max-w-2xl text-center">
                 <p className="text-sm font-medium uppercase tracking-widest text-indigo-600">
                     InsureCompare
                 </p>
-                <h1 className="mt-3 text-5xl font-semibold tracking-tight text-slate-900">
+                <h1 className="mt-3 text-4xl sm:text-5xl font-semibold tracking-tight text-slate-900">
                     Is your new quote actually better?
                 </h1>
                 <p className="mt-4 text-lg text-slate-600">
