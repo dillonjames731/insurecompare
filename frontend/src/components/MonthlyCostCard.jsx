@@ -10,7 +10,7 @@ if (comparison.status !== "ok") {
 }
     const badgeColor = comparison.difference < 0 ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
     return (
-        <div className="mt-8 rounded-2xl bg-white p-6 text-left shadow-sm">
+        <div className="mt-8 rounded-2xl bg-white p-6 text-left shadow-sm animate-fade-in-up [animation-delay:100ms]">
             <h2 className="text-sm font-medium uppercase tracking-widest text-slate-500">
                 Monthly Cost
             </h2>

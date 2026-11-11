@@ -2,6 +2,7 @@ import UploadBox from "./components/UploadBox.jsx"
 import {useState} from "react"
 import ComparisonRow from "./components/ComparisonRow.jsx"
 import MonthlyCostCard from "./components/MonthlyCostCard.jsx"
+import "./index.css"
 
 
 function App() {
@@ -77,12 +78,12 @@ function App() {
                 {report && (
 
                     <>
-                        <p className="mt-8 text-2xl font-semibold text-slate-900">
+                        <p className="mt-8 text-2xl font-semibold text-slate-900 animate-fade-in-up [animation-delay:0ms]">
                             {report.overall_summary}
                         </p>
                         <MonthlyCostCard comparison={report.comparisons.monthly_cost}/>
 
-                        <div className="mt-8 rounded-2xl bg-white p-6 text-left shadow-sm">
+                        <div className="mt-8 rounded-2xl bg-white p-6 text-left shadow-sm animate-fade-in-up [animation-delay:200ms]">
                             <h2 className="text-sm font-medium uppercase tracking-widest text-slate-500">Coverage
                                 limits</h2>
                             <ComparisonRow title="Bodily injury" comparison={report.comparisons.limits.bodily_injury}/>
@@ -96,13 +97,13 @@ function App() {
                                            comparison={report.comparisons.limits.medical_payments}/>
                         </div>
 
-                        <div className="mt-4 rounded-2xl bg-white p-6 text-left shadow-sm">
+                        <div className="mt-4 rounded-2xl bg-white p-6 text-left shadow-sm animate-fade-in-up [animation-delay:300ms]">
                             <h2 className="text-sm font-medium uppercase tracking-widest text-slate-500">Deductibles</h2>
                             <ComparisonRow title="Comprehensive"
                                            comparison={report.comparisons.deductibles.comprehensive}/>
                             <ComparisonRow title="Collision" comparison={report.comparisons.deductibles.collision}/>
                         </div>
-                        <div className="mt-4 rounded-2xl bg-white p-6 text-left shadow-sm">
+                        <div className="mt-4 rounded-2xl bg-white p-6 text-left shadow-sm animate-fade-in-up [animation-delay:400ms]">
                             <h2 className="text-sm font-medium uppercase tracking-widest text-slate-500">Add-Ons</h2>
                             <ComparisonRow title="Rental" comparison={report.comparisons.add_ons.rental}/>
                             <ComparisonRow title="Towing" comparison={report.comparisons.add_ons.towing}/>
