@@ -3,11 +3,11 @@ from app.services.parser_service import parse_document
 from app.services.ai_extraction_service import extract_with_ai
 
 
-def analyze_document(text: str) -> tuple[PolicySummary, dict]:
+def analyze_document(text: str, use_ai: bool = True) -> tuple[PolicySummary, dict]:
     regex_data = parse_document(text).model_dump()
 
     ai_data = {}
-    if None in regex_data.values():
+    if use_ai and None in regex_data.values():
         ai_result = extract_with_ai(text)
         if ai_result is not None:
             ai_data = ai_result.model_dump()
