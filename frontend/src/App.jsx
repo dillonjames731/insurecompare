@@ -10,6 +10,7 @@ function App() {
     const [quoteFile, setQuoteFile] = useState(null)
     const [report, setReport] = useState(null)
     const [loading, setLoading] = useState(false)
+    const [useAi, setUseAi] = useState(true)
     const [error, setError] = useState(null)
 
     async function handleCompare() {
@@ -19,31 +20,21 @@ function App() {
         try {
             const form = new FormData()
             form.append("dec_page", decFile)
-            form.append("quote", quoteFile)
+            form.append("quote_page", quoteFile)
+            form.append("use_ai", useAi)
 
-            const uploadResponse = await
-                fetch("/compare/upload", {method: "POST", body: form})
-            if (!uploadResponse.ok) throw new Error("Upload failed")
-            const upload = await uploadResponse.json()
-            console.log("upload:", upload)
-
-
-            const extractResponse = await fetch("/compare/extract", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({comparison_id: upload.comparison_id})
-            })
-            if (!extractResponse.ok) throw new Error("Extraction failed")
-
-
-            const report = await extractResponse.json()
+            const response = await fetch("/compare/analyze",
+                {method: "POST", body: form})
+            if (!response.ok) throw new Error("Comparison failed")
+            const report = await response.json()
             setReport(report)
         } catch (error) {
-            console.log(error)
+            console.error(error)
             setError("Something went wrong. Please try again.")
         } finally {
-            setLoading(false)
-        }
+                setLoading(false)
+            }
+
 
 
     }
@@ -72,7 +63,17 @@ function App() {
                                onFileChange={setDecFile}/>
                     <UploadBox label="New quote" hint="The quote you're considering (PDF)" file={quoteFile}
                                onFileChange={setQuoteFile}/>
-                </div>
+
+                                </div>
+                <label className="mt-6 flex items-start gap-3 text-left text-sm text-slate-600">
+                    <input type="checkbox" checked={useAi} disabled={loading}
+                           onChange={(e) => setUseAi(e.target.checked)}
+                           className="mt-0.5 h-4 w-4 accent-indigo-600"/>
+                    <span>
+                        Use AI to read details our parser can't find. When this is on, the text of your
+                        documents is sent to Anthropic's Claude API to be read.
+                    </span>
+                </label>
                 <button type="button" onClick={handleCompare} disabled={!decFile || !quoteFile || loading}
                         className="mt-8 w-full rounded-xl bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300 inline-flex items-center justify-center gap-2">
                     {loading && <span
@@ -80,7 +81,9 @@ function App() {
                     {loading ? "Comparing..." : "Compare"}
                 </button>
                 {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
-
+                <p className="mt-4 text-xs text-slate-500">
+                    Your PDFs are read in memory and never stored on our server.
+                </p>
 
                 {report && (
 
