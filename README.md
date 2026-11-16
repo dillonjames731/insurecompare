@@ -1,6 +1,6 @@
 # InsureCompare
 
-**Is your new auto insurance quote actually better?** Upload your current declarations page and a new quote (PDFs). InsureCompare reads both and explains the differences in price, coverage limits, deductibles and add-ons, in plain English.
+Insurance can be confusing, and when looking at your policy and a quote, it can be hard to determine whether or not you're getting the same coverage or better, and if the value is better. With InsureCompare, you can see a simple breakdown without reading pages of policy language to help you make the best choice for you and your family.
 
 [![Tests](https://github.com/dillonjames731/insurecompare/actions/workflows/tests.yml/badge.svg)](https://github.com/dillonjames731/insurecompare/actions/workflows/tests.yml)
 
